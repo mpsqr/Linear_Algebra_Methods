@@ -53,7 +53,7 @@ int main(int argc,char *argv[])
 
   set_GB_operator_colMajor_poisson1D(AB, &lab, &la, &kv);
 
-  // write_GB_operator_colMajor_poisson1D(AB, &lab, &la, "AB.dat");
+  write_GB_operator_colMajor_poisson1D(AB, &lab, &la, "AB.dat");
 
   printf("Solution with LAPACK\n");
   /* LU Factorization */
