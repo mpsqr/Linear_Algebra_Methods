@@ -23,7 +23,7 @@ int main(int argc,char *argv[])
   double **AAB;
   double *AB;
 
-  double temp, relres;
+  //double temp, relres;
 
   NRHS=1;
   nbpoints=10;
@@ -76,6 +76,7 @@ int main(int argc,char *argv[])
   }
 
   printf("Time taken by DGBMV: %lfs \n", time);
+  printf("Forward error is: %e\n", forward_error(&la, EX_SOL, MY_RHS));
 
   printf("\n\n");
 
@@ -105,6 +106,7 @@ int main(int argc,char *argv[])
   time = ((double)end.tv_sec + (double)end.tv_nsec/1e9) - ((double) start.tv_sec + (double)start.tv_nsec/1e9);
 
   printf("Time taken by DGBTRF: %lfs \n", time);
+  printf("Forward error is: %e\n", forward_error(&la, EX_SOL, RHS));
 
   printf("\n\n");
 
@@ -121,7 +123,7 @@ int main(int argc,char *argv[])
   // LU for tridiagonal matrix  (can replace dgbtrf_) 
   clock_gettime(CLOCK_MONOTONIC_RAW, &start);
   ierr = dgbtrftridiag(&la, &la, &kl, &ku, AB, &lab, ipiv, &info);
-  
+
   if (info==0){
     dgbtrs_("N", &la, &kl, &ku, &NRHS, AB, &lab, ipiv, RHS, &la, &info, 1);
     if (info!=0){printf("\n INFO DGBTRS = %d\n",info);}
@@ -136,6 +138,7 @@ int main(int argc,char *argv[])
   write_GB_operator_colMajor_poisson1D(AB, &lab, &la, "LU.dat");
 
   printf("Time taken by DGBTRFTRIDIAG: %lfs \n", time);
+  printf("Forward error is: %e\n", forward_error(&la, EX_SOL, RHS));
 
   printf("\n\n");
   
@@ -155,13 +158,8 @@ int main(int argc,char *argv[])
   write_xy(RHS, X, &la, "SOL.dat");
   
   printf("Time taken by DGBTRFTRIDIAG: %lfs \n", time);
+  printf("Forward error is: %e\n", forward_error(&la, EX_SOL, RHS));
 
-  // Relative forward error 
-  // TODO : Compute relative norm of the residual
-
-  
-
-  printf("\nThe relative forward error is relres = %e\n",relres);
 
   free(RHS);
   free(MY_RHS);

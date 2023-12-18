@@ -195,3 +195,31 @@ int dgbtrftridiag(int *la, int*n, int *kl, int *ku, double *AB, int *lab, int *i
   }
   return *info;
 }
+
+double forward_error(int* la, double* EX_SOL, double* RHS) {
+
+  double exsolution_norm = 0.0; // ||x-x'||
+  // 2-norm
+  for (int i = 0; i < *la; i++) {
+    exsolution_norm += EX_SOL[i]*EX_SOL[i];
+    RHS[i] *= -1.0;
+  }
+  exsolution_norm = sqrt(exsolution_norm);
+
+
+  // Daxpy
+  for (int i = 0; i < *la; i++) {
+    RHS[i] += EX_SOL[i]; 
+  }
+
+
+  double solution_norm = 0.0; // ||x||
+  // 2-norm
+  for (int i = 0; i < *la; i++) {
+    solution_norm += RHS[i]*RHS[i];
+  }
+  solution_norm = sqrt(solution_norm);
+
+
+  return solution_norm / exsolution_norm;
+}
