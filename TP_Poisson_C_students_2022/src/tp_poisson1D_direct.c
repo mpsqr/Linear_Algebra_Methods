@@ -52,25 +52,25 @@ int main(int argc,char *argv[])
   AB = (double *) malloc(sizeof(double)*lab*la);
 
   set_GB_operator_colMajor_poisson1D(AB, &lab, &la, &kv);
-
   write_GB_operator_colMajor_poisson1D(AB, &lab, &la, "AB.dat");
 
   // DGBMV
   cblas_dgbmv(CblasColMajor, CblasTrans, la, la, kl, ku, 1, AB+1, lab, EX_SOL, 1, 0, RHS, 1);
+  write_vec(RHS, &la, "RHS.dat");
 
-  
+  set_GB_operator_colMajor_poisson1D(AB, &lab, &la, &kv);
 
 
   printf("Solution with LAPACK\n");
   /* LU Factorization */
   info=0;
   ipiv = (int *) calloc(la, sizeof(int));
-  dgbtrf_(&la, &la, &kl, &ku, AB, &lab, ipiv, &info);
+  //dgbtrf_(&la, &la, &kl, &ku, AB, &lab, ipiv, &info);
 
   /* LU for tridiagonal matrix  (can replace dgbtrf_) */
-  // ierr = dgbtrftridiag(&la, &la, &kl, &ku, AB, &lab, ipiv, &info);
+  ierr = dgbtrftridiag(&la, &la, &kl, &ku, AB, &lab, ipiv, &info);
 
-  // write_GB_operator_colMajor_poisson1D(AB, &lab, &la, "LU.dat");
+  write_GB_operator_colMajor_poisson1D(AB, &lab, &la, "LU.dat");
   
   /* Solution (Triangular) */
   if (info==0){
@@ -93,6 +93,6 @@ int main(int argc,char *argv[])
   free(RHS);
   free(EX_SOL);
   free(X);
-  free(AB);
+  //free(AB);
   printf("\n\n--------- End -----------\n");
 }
