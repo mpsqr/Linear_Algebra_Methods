@@ -5,6 +5,7 @@
 /******************************************/
 #include "lib_poisson1D.h"
 #include "atlas_headers.h"
+#include <time.h>
 
 int main(int argc,char *argv[])
 /* ** argc: Nombre d'arguments */
@@ -18,7 +19,7 @@ int main(int argc,char *argv[])
   int info;
   int NRHS;
   double T0, T1;
-  double *RHS, *EX_SOL, *X;
+  double *RHS, *MY_RHS, *EX_SOL, *X;
   double **AAB;
   double *AB;
 
@@ -32,6 +33,7 @@ int main(int argc,char *argv[])
 
   printf("--------- Poisson 1D ---------\n\n");
   RHS=(double *) malloc(sizeof(double)*la);
+  MY_RHS = (double *) malloc(sizeof(double)*la); // For validating our results
   EX_SOL=(double *) malloc(sizeof(double)*la);
   X=(double *) malloc(sizeof(double)*la);
 
@@ -51,28 +53,50 @@ int main(int argc,char *argv[])
 
   AB = (double *) malloc(sizeof(double)*lab*la);
 
+  // TODO : add validation tests
+
+  struct timespec start, end;
+  double time = 0.0;
+
+  // DGBMV
+  printf("TEST WITH DGBMV\n");
+
   set_GB_operator_colMajor_poisson1D(AB, &lab, &la, &kv);
   write_GB_operator_colMajor_poisson1D(AB, &lab, &la, "AB.dat");
 
-  // DGBMV
-  cblas_dgbmv(CblasColMajor, CblasTrans, la, la, kl, ku, 1, AB+1, lab, EX_SOL, 1, 0, RHS, 1);
-  write_vec(RHS, &la, "RHS.dat");
+  clock_gettime(CLOCK_MONOTONIC_RAW, &start);
+  cblas_dgbmv(CblasColMajor, CblasTrans, la, la, kl, ku, 1, AB+1, lab, EX_SOL, 1, 0, MY_RHS, 1);
+  clock_gettime(CLOCK_MONOTONIC_RAW, &end);
+  time = ((double)end.tv_sec + (double)end.tv_nsec/1e9) - ((double) start.tv_sec + (double)start.tv_nsec/1e9);
+
+  write_vec(MY_RHS, &la, "MY_RHS.dat");
+  // Validating
+  for (int i = 0; i < la; i++) {
+    printf("[RHS-MY_RHS]: %lf\n", RHS[i]-MY_RHS[i]);
+  }
+
+  printf("Time taken by DGBMV: %lfs \n", time);
+
+  printf("\n\n");
+
+
+
+  // DGBTRF
+  printf("TEST WITH DGBTRF\n");
 
   set_GB_operator_colMajor_poisson1D(AB, &lab, &la, &kv);
-
-
-  printf("Solution with LAPACK\n");
-  /* LU Factorization */
+  set_dense_RHS_DBC_1D(RHS,&la,&T0,&T1);
   info=0;
   ipiv = (int *) calloc(la, sizeof(int));
-  //dgbtrf_(&la, &la, &kl, &ku, AB, &lab, ipiv, &info);
 
-  /* LU for tridiagonal matrix  (can replace dgbtrf_) */
-  ierr = dgbtrftridiag(&la, &la, &kl, &ku, AB, &lab, ipiv, &info);
+  clock_gettime(CLOCK_MONOTONIC_RAW, &start);
+  dgbtrf_(&la, &la, &kl, &ku, AB, &lab, ipiv, &info);
+  clock_gettime(CLOCK_MONOTONIC_RAW, &end);
+  time = ((double)end.tv_sec + (double)end.tv_nsec/1e9) - ((double) start.tv_sec + (double)start.tv_nsec/1e9);
 
-  write_GB_operator_colMajor_poisson1D(AB, &lab, &la, "LU.dat");
-  
-  /* Solution (Triangular) */
+
+
+  // Solution (Triangular) 
   if (info==0){
     dgbtrs_("N", &la, &kl, &ku, &NRHS, AB, &lab, ipiv, RHS, &la, &info, 1);
     if (info!=0){printf("\n INFO DGBTRS = %d\n",info);}
@@ -80,19 +104,61 @@ int main(int argc,char *argv[])
     printf("\n INFO = %d\n",info);
   }
 
-  /* It can also be solved with dgbsv */
-  // TODO : use dgbsv
+  printf("Time taken by DGBTRF: %lfs \n", time);
+
+  printf("\n\n");
+
+
+  
+  // DGBTRFTRIDIAG
+  printf("TEST WITH DGBTRFTRIDIAG\n");
+
+
+  set_dense_RHS_DBC_1D(RHS,&la,&T0,&T1);
+  set_GB_operator_colMajor_poisson1D(AB, &lab, &la, &kv);
+  info = 0;
+
+  // LU for tridiagonal matrix  (can replace dgbtrf_) 
+  clock_gettime(CLOCK_MONOTONIC_RAW, &start);
+  ierr = dgbtrftridiag(&la, &la, &kl, &ku, AB, &lab, ipiv, &info);
+  clock_gettime(CLOCK_MONOTONIC_RAW, &end);
+  time = ((double)end.tv_sec + (double)end.tv_nsec/1e9) - ((double) start.tv_sec + (double)start.tv_nsec/1e9);
+
+
+  write_GB_operator_colMajor_poisson1D(AB, &lab, &la, "LU.dat");
+
+  printf("Time taken by DGBTRFTRIDIAG: %lfs \n", time);
+
+  printf("\n\n");
+  
+
+  // DGBSV
+  printf("TEST WITH DGBSV\n");
+
+  set_dense_RHS_DBC_1D(RHS,&la,&T0,&T1);
+  set_GB_operator_colMajor_poisson1D(AB, &lab, &la, &kv);
+  info = 0;
+  
+  clock_gettime(CLOCK_MONOTONIC_RAW, &start);
+  dgbsv_(&la, &kl, &ku, &NRHS, AB, &lab, ipiv, RHS, &la, &info);
+  clock_gettime(CLOCK_MONOTONIC_RAW, &end);
+  time = ((double)end.tv_sec + (double)end.tv_nsec/1e9) - ((double) start.tv_sec + (double)start.tv_nsec/1e9);
 
   write_xy(RHS, X, &la, "SOL.dat");
-
-  /* Relative forward error */
-  // TODO : Compute relative norm of the residual
   
+  printf("Time taken by DGBTRFTRIDIAG: %lfs \n", time);
+
+  // Relative forward error 
+  // TODO : Compute relative norm of the residual
+
+  
+
   printf("\nThe relative forward error is relres = %e\n",relres);
 
   free(RHS);
+  free(MY_RHS);
   free(EX_SOL);
   free(X);
-  //free(AB);
+  free(AB);
   printf("\n\n--------- End -----------\n");
 }

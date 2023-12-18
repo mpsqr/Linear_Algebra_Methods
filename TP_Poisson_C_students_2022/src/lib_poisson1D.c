@@ -178,21 +178,20 @@ void write_xy(double* vec, double* x, int* la, char* filename){
 int indexABCol(int i, int j, int *lab) {
   return i + j*(*lab);
 }
-int dgbtrftridiag(int *la, int*n, int *kl, int *ku, double *AB, int *lab, int *ipiv, int *info) {
 
-  ipiv[0] = 1;
 
-  for (int i = 0; i < *la; i++) {
-    if (!AB[(*lab)*i - 2]) {
+int dgbtrftridiag(int *la, int*n, int *kl, int *ku, double *AB, int *lab, int *ipiv, int *info){
+
+  ipiv[0]=1;
+
+  for(int i = 1; i < *la; i++){
+    if(!AB[ *lab*i-2 ]){
       *info = 1;
       return *info;
     }
-
-    AB[((*lab)*i)-1] /= AB[((*lab)*i)-2];
-    AB[((*lab)*(i+1))-2] -= AB[((*lab)*i)-1] * AB[((*lab)*(i+1))-3];
-    ipiv[i] = i+1;
+    AB[(*lab*i)-1] *= 1/AB[*lab*i-2];
+    AB[*lab*(i+1)-2] -= AB[*lab*i-1] * AB[*lab*(i+1)-3];
+    ipiv[i]=i+1;
   }
-
-
   return *info;
 }
