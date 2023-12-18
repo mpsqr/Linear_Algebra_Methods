@@ -91,9 +91,6 @@ int main(int argc,char *argv[])
 
   clock_gettime(CLOCK_MONOTONIC_RAW, &start);
   dgbtrf_(&la, &la, &kl, &ku, AB, &lab, ipiv, &info);
-  clock_gettime(CLOCK_MONOTONIC_RAW, &end);
-  time = ((double)end.tv_sec + (double)end.tv_nsec/1e9) - ((double) start.tv_sec + (double)start.tv_nsec/1e9);
-
 
 
   // Solution (Triangular) 
@@ -103,6 +100,9 @@ int main(int argc,char *argv[])
   }else{
     printf("\n INFO = %d\n",info);
   }
+
+  clock_gettime(CLOCK_MONOTONIC_RAW, &end);
+  time = ((double)end.tv_sec + (double)end.tv_nsec/1e9) - ((double) start.tv_sec + (double)start.tv_nsec/1e9);
 
   printf("Time taken by DGBTRF: %lfs \n", time);
 
@@ -121,6 +121,14 @@ int main(int argc,char *argv[])
   // LU for tridiagonal matrix  (can replace dgbtrf_) 
   clock_gettime(CLOCK_MONOTONIC_RAW, &start);
   ierr = dgbtrftridiag(&la, &la, &kl, &ku, AB, &lab, ipiv, &info);
+  
+  if (info==0){
+    dgbtrs_("N", &la, &kl, &ku, &NRHS, AB, &lab, ipiv, RHS, &la, &info, 1);
+    if (info!=0){printf("\n INFO DGBTRS = %d\n",info);}
+  } else{
+    printf("\n INFO = %d\n",info);
+  }
+
   clock_gettime(CLOCK_MONOTONIC_RAW, &end);
   time = ((double)end.tv_sec + (double)end.tv_nsec/1e9) - ((double) start.tv_sec + (double)start.tv_nsec/1e9);
 
