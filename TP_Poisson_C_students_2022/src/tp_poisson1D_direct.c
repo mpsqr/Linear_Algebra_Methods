@@ -42,9 +42,9 @@ int main(int argc,char *argv[])
   set_dense_RHS_DBC_1D(RHS,&la,&T0,&T1);
   set_analytical_solution_DBC_1D(EX_SOL, X, &la, &T0, &T1);
   
-  write_vec(RHS, &la, "RHS.dat");
-  write_vec(EX_SOL, &la, "EX_SOL.dat");
-  write_vec(X, &la, "X_grid.dat");
+  //write_vec(RHS, &la, "RHS.dat");
+  //write_vec(EX_SOL, &la, "EX_SOL.dat");
+  //write_vec(X, &la, "X_grid.dat");
 
   kv=1;
   ku=1;
@@ -62,14 +62,14 @@ int main(int argc,char *argv[])
   printf("TEST WITH DGBMV\n");
 
   set_GB_operator_colMajor_poisson1D(AB, &lab, &la, &kv);
-  write_GB_operator_colMajor_poisson1D(AB, &lab, &la, "AB.dat");
+  //write_GB_operator_colMajor_poisson1D(AB, &lab, &la, "AB.dat");
 
   clock_gettime(CLOCK_MONOTONIC_RAW, &start);
   cblas_dgbmv(CblasColMajor, CblasTrans, la, la, kl, ku, 1, AB+1, lab, EX_SOL, 1, 0, MY_RHS, 1);
   clock_gettime(CLOCK_MONOTONIC_RAW, &end);
   time = ((double)end.tv_sec + (double)end.tv_nsec/1e9) - ((double) start.tv_sec + (double)start.tv_nsec/1e9);
 
-  write_vec(MY_RHS, &la, "MY_RHS.dat");
+  //write_vec(MY_RHS, &la, "MY_RHS.dat");
   // Validating
   for (int i = 0; i < la; i++) {
     printf("[RHS-MY_RHS]: %lf\n", RHS[i]-MY_RHS[i]);
@@ -135,7 +135,7 @@ int main(int argc,char *argv[])
   time = ((double)end.tv_sec + (double)end.tv_nsec/1e9) - ((double) start.tv_sec + (double)start.tv_nsec/1e9);
 
 
-  write_GB_operator_colMajor_poisson1D(AB, &lab, &la, "LU.dat");
+  //write_GB_operator_colMajor_poisson1D(AB, &lab, &la, "LU.dat");
 
   printf("Time taken by DGBTRFTRIDIAG: %lfs \n", time);
   printf("Forward error is: %e\n", forward_error(&la, EX_SOL, RHS));
@@ -155,7 +155,7 @@ int main(int argc,char *argv[])
   clock_gettime(CLOCK_MONOTONIC_RAW, &end);
   time = ((double)end.tv_sec + (double)end.tv_nsec/1e9) - ((double) start.tv_sec + (double)start.tv_nsec/1e9);
 
-  write_xy(RHS, X, &la, "SOL.dat");
+  //write_xy(RHS, X, &la, "SOL.dat");
   
   printf("Time taken by DGBTRFTRIDIAG: %lfs \n", time);
   printf("Forward error is: %e\n", forward_error(&la, EX_SOL, RHS));

@@ -16,7 +16,11 @@ make all
 # Run the code
 
 ./bin/tpPoisson1D_direct
+
+
 ./bin/tpPoisson1D_iter
+./bin/tpPoisson1D_iter 1
+./bin/tpPoisson1D_iter 2
 
 # Clean
 rm $(hostname).mk
