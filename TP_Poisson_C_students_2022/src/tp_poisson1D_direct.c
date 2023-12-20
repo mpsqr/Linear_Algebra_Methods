@@ -106,7 +106,7 @@ int main(int argc,char *argv[])
   time = ((double)end.tv_sec + (double)end.tv_nsec/1e9) - ((double) start.tv_sec + (double)start.tv_nsec/1e9);
 
   printf("Time taken by DGBTRF: %lfs \n", time);
-  printf("Forward error is: %e\n", forward_error(&la, EX_SOL, RHS));
+  //printf("Forward error is: %e\n", forward_error(&la, EX_SOL, RHS));
 
   printf("\n\n");
 
@@ -138,7 +138,7 @@ int main(int argc,char *argv[])
   //write_GB_operator_colMajor_poisson1D(AB, &lab, &la, "LU.dat");
 
   printf("Time taken by DGBTRFTRIDIAG: %lfs \n", time);
-  printf("Forward error is: %e\n", forward_error(&la, EX_SOL, RHS));
+  //printf("Forward error is: %e\n", forward_error(&la, EX_SOL, RHS));
 
   printf("\n\n");
   
@@ -158,7 +158,7 @@ int main(int argc,char *argv[])
   //write_xy(RHS, X, &la, "SOL.dat");
   
   printf("Time taken by DGBTRFTRIDIAG: %lfs \n", time);
-  printf("Forward error is: %e\n", forward_error(&la, EX_SOL, RHS));
+  //printf("Forward error is: %e\n", forward_error(&la, EX_SOL, RHS));
 
 
   free(RHS);

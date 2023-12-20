@@ -24,7 +24,33 @@ double richardson_alpha_opt(int *la) {
   return 2/(eigmax_poisson1D(la) + eigmin_poisson1D(la)); // = 1/2
 }
 
-void richardson_alpha(double *AB, double *RHS, double *X, double *alpha_rich, int *lab, int *la,int *ku, int*kl, double *tol, int *maxit, double *resvec, int *nbite){
+void richardson_alpha(double *AB, double *RHS, double *X, double *alpha_rich, int *lab, int *la,int *ku, int*kl, double *tol, int *maxit, double *resvec, int *nbite) {
+  
+  double* rk = malloc(sizeof(double) * (*la));
+  double norm = 0;
+  double norm_B = cblas_dnrm2(*la, RHS, 1); // L2 norm
+  double inv_norm = 1 / norm_B;
+
+  for ((*nbite) = 0; (*nbite) < (*maxit); (*nbite++)) {
+
+    for (int i = 0; i < (*la); i++) {
+      rk[i] = RHS[i];
+    }
+
+
+    // Calcul de b = b-Ax
+    cblas_dgbmv(CblasColMajor, CblasNoTrans, *la, *la, *kl, *ku, -1.0, AB, *lab, X, 1, 1.0, rk, 1);
+    // Résidu
+    norm = cblas_dnrm2(*la, rk, 1) * inv_norm;
+    resvec[(*nbite)] = norm;
+
+
+    if (resvec[(*nbite)] <= (*tol))
+      break;
+  }
+
+  free(rk);
+  
 }
 
 void extract_MB_jacobi_tridiag(double *AB, double *MB, int *lab, int *la,int *ku, int*kl, int *kv) {
