@@ -15,7 +15,9 @@ double eigmax_poisson1D(int *la){
 }
 
 double eigmin_poisson1D(int *la){
-  return 0;
+  double h = 1.0/((*la) + 1.0);
+  double temp = sin((M_PI*h)*0.5);
+  return 4.0*temp*temp;
 }
 
 double richardson_alpha_opt(int *la){
