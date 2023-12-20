@@ -21,7 +21,7 @@ double eigmin_poisson1D(int *la){
 }
 
 double richardson_alpha_opt(int *la){
-  return 0;
+  return 2/(eigmax_poisson1D(la) + eigmin_poisson1D(la));
 }
 
 void richardson_alpha(double *AB, double *RHS, double *X, double *alpha_rich, int *lab, int *la,int *ku, int*kl, double *tol, int *maxit, double *resvec, int *nbite){
