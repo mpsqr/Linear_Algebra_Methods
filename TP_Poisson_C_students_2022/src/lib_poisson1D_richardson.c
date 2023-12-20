@@ -9,7 +9,9 @@ void eig_poisson1D(double* eigval, int *la){
 }
 
 double eigmax_poisson1D(int *la){
-  return 0;
+  double h = 1.0/((*la) + 1.0);
+  double temp = sin((M_PI*h*(*la))*0.5);
+  return 4.0*temp*temp;
 }
 
 double eigmin_poisson1D(int *la){
