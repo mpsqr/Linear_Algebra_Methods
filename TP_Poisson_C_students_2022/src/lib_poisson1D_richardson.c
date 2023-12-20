@@ -30,14 +30,26 @@ void richardson_alpha(double *AB, double *RHS, double *X, double *alpha_rich, in
 void extract_MB_jacobi_tridiag(double *AB, double *MB, int *lab, int *la,int *ku, int*kl, int *kv) {
   for (int i = 0; i < *la; i++) {
     for (int j = 0; j < *lab; j++) {
-      MB[((*lab)*i) + j] = 0.0;
+      int ind = (*lab)*i;
+      MB[ind + j] = 0.0;
     }
     // Fill the diagonal
-    MB[((*lab)*i) + (*ku)] = AB[((*lab)*i) + (*ku)];
+    int ind = ((*lab)*i) + (*ku);
+    MB[ind] = AB[ind];
   }
 }
 
-void extract_MB_gauss_seidel_tridiag(double *AB, double *MB, int *lab, int *la,int *ku, int*kl, int *kv){
+void extract_MB_gauss_seidel_tridiag(double *AB, double *MB, int *lab, int *la,int *ku, int*kl, int *kv) {
+  for (int i = 0; i < *la; i++) {
+    for (int j = 0; j < *lab; j++) {
+      int ind = (*lab)*i;
+      MB[ind + j] = 0.0;
+    }
+    // Fill the diagonal
+    int ind = ((*lab)*i) + (*ku);
+    MB[ind] = AB[ind];
+    MB[ind + 1] = AB[ind + 1];
+  }
 }
 
 void richardson_MB(double *AB, double *RHS, double *X, double *MB, int *lab, int *la,int *ku, int*kl, double *tol, int *maxit, double *resvec, int *nbite){
