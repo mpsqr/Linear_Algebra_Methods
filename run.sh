@@ -16,6 +16,7 @@ make all
 # Run the code
 
 ./bin/tpPoisson1D_direct
+./bin/tpPoisson1D_iter
 
 # Clean
 rm $(hostname).mk
