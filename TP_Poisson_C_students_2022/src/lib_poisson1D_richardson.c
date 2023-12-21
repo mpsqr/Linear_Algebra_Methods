@@ -27,7 +27,7 @@ double richardson_alpha_opt(int *la) {
 void richardson_alpha(double *AB, double *RHS, double *X, double *alpha_rich, int *lab, int *la,int *ku, int*kl, double *tol, int *maxit, double *resvec, int *nbite) {
   
   double* rk = malloc(sizeof(double) * (*la));
-  double norm = 0;
+  double norm = 0.0;
   double norm_B = cblas_dnrm2(*la, RHS, 1); // L2 norm
   double inv_norm = 1 / norm_B;
 
@@ -79,6 +79,40 @@ void extract_MB_gauss_seidel_tridiag(double *AB, double *MB, int *lab, int *la,i
   }
 }
 
-void richardson_MB(double *AB, double *RHS, double *X, double *MB, int *lab, int *la,int *ku, int*kl, double *tol, int *maxit, double *resvec, int *nbite){
+void richardson_MB(double *AB, double *RHS, double *X, double *MB, int *lab, int *la,int *ku, int*kl, double *tol, int *maxit, double *resvec, int *nbite) {
+  double* rk = malloc(sizeof(double) * (*la));
+  double norm_B = cblas_dnrm2(*la, RHS, 1); // L2 norm
+  double inv_norm = 1 / norm_B;
+  double norm = 0.0;
+  int* ipiv = malloc(sizeof(int) * (*la)); // Pivots
+  int info = 0;// 0->success
+  int NHRS = 1; // Right-hand sides
+  int kuu = (*ku)-1;
+
+
+
+  dgbtrf_(la, la, kl, &kuu, MB, lab, ipiv, &info);
+  for ((*nbite) = 0; (*nbite) < (*maxit); (*nbite)++) {
+
+    for (int i = 0; i < (*la); i++) {
+      rk[i] = RHS[i];
+    }
+
+    cblas_dgbmv(CblasColMajor, CblasNoTrans, *la, *la, *kl, *ku, -1.0, AB, *lab, X, 1, 1.0, rk, 1);
+
+    norm = cblas_dnrm2(*la, rk, 1) * inv_norm;
+    resvec[(*nbite)] = norm;
+
+    dgbtrs_("N", la, kl, &kuu, &NHRS, MB, lab, ipiv, rk, la, &info, 1);
+
+    cblas_daxpy(*la, 1, rk, 1, X, 1);
+
+    if (norm <= (*tol))
+      break;
+  }
+
+  free(rk);
+  free(ipiv);
+
 }
 
