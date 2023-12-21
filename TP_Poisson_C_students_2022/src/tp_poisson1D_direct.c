@@ -5,7 +5,6 @@
 /******************************************/
 #include "lib_poisson1D.h"
 #include "atlas_headers.h"
-#include <time.h>
 
 int main(int argc,char *argv[])
 /* ** argc: Nombre d'arguments */

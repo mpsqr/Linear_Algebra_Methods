@@ -30,6 +30,12 @@ int main(int argc,char *argv[])
 
   double opt_alpha;
 
+  struct timespec start, end;
+  double time = 0.0;
+
+
+  printf("---------------Iterative Methods---------------\n\n");
+
   if (argc == 2) {
     IMPLEM = atoi(argv[1]);
   } else if (argc > 2) {
@@ -78,7 +84,7 @@ int main(int argc,char *argv[])
 
   /* Computation of optimum alpha */
   opt_alpha = richardson_alpha_opt(&la);
-  printf("Optimal alpha for simple Richardson iteration is : %lf",opt_alpha); 
+  printf("Optimal alpha for simple Richardson iteration is : %lf\n\n",opt_alpha); 
 
   /* Solve */
   double tol=1e-3;
@@ -90,7 +96,17 @@ int main(int argc,char *argv[])
 
   /* Solve with Richardson alpha */
   if (IMPLEM == ALPHA) {
+    printf("Richardson Alpha:\n");
+    clock_gettime(CLOCK_MONOTONIC_RAW, &start);
     richardson_alpha(AB, RHS, SOL, &opt_alpha, &lab, &la, &ku, &kl, &tol, &maxit, resvec, &nbite);
+    clock_gettime(CLOCK_MONOTONIC_RAW, &end);
+    time = ((double)end.tv_sec + (double)end.tv_nsec/1e9) - ((double) start.tv_sec + (double)start.tv_nsec/1e9);
+
+    write_vec(SOL, &la, "results/Solutions/richardson_alpha_sol.dat");
+    write_vec(resvec, &nbite, "results/Convergence/richardson_alpha_convergence.dat");
+
+    printf("Time taken by Richardson alpha: %lfs \n", time);
+    printf("Forward relative error: %lf\n", forward_error(&la, EX_SOL, RHS));
   }
 
   /* Richardson General Tridiag */
@@ -101,22 +117,57 @@ int main(int argc,char *argv[])
   kl = 1;
   MB = (double *) malloc(sizeof(double)*(lab)*la);
   if (IMPLEM == JAC) {
+    printf("Jacobi:\n");
     extract_MB_jacobi_tridiag(AB, MB, &lab, &la, &ku, &kl, &kv);
+    // Solve with general Richardson
+    write_GB_operator_colMajor_poisson1D(MB, &lab, &la, "MB.dat");
+
+    clock_gettime(CLOCK_MONOTONIC_RAW, &start);
+    richardson_MB(AB, RHS, SOL, MB, &lab, &la, &ku, &kl, &tol, &maxit, resvec, &nbite);
+    clock_gettime(CLOCK_MONOTONIC_RAW, &end);
+    time = ((double)end.tv_sec + (double)end.tv_nsec/1e9) - ((double) start.tv_sec + (double)start.tv_nsec/1e9);
+
+    write_vec(SOL, &la, "results/Solutions/jacobi_sol.dat");
+    write_vec(resvec, &nbite, "results/Convergence/jacobi_convergence.dat");
+
+    printf("Time taken by Jacobi: %lfs \n", time);
+    printf("Forward relative error: %lf\n", forward_error(&la, EX_SOL, RHS));
+
+
   } else if (IMPLEM == GS) {
+    printf("Gauss-Seidel:\n");
     extract_MB_gauss_seidel_tridiag(AB, MB, &lab, &la, &ku, &kl, &kv);
+    write_GB_operator_colMajor_poisson1D(MB, &lab, &la, "MB.dat");
+
+    clock_gettime(CLOCK_MONOTONIC_RAW, &start);
+    richardson_MB(AB, RHS, SOL, MB, &lab, &la, &ku, &kl, &tol, &maxit, resvec, &nbite);
+    clock_gettime(CLOCK_MONOTONIC_RAW, &end);
+    time = ((double)end.tv_sec + (double)end.tv_nsec/1e9) - ((double) start.tv_sec + (double)start.tv_nsec/1e9);
+
+    write_vec(SOL, &la, "results/Solutions/gauss_seidel_sol.dat");
+    write_vec(resvec, &nbite, "results/Convergence/gauss_seidel_convergence.dat");
+
+    printf("Time taken by Gauss-Seidel: %lfs \n", time);
+    printf("Forward relative error: %lf\n", forward_error(&la, EX_SOL, RHS));
   }
 
-  /* Solve with General Richardson */
+
+  /*
+  // Solve with General Richardson 
   if (IMPLEM == JAC || IMPLEM == GS) {
     write_GB_operator_colMajor_poisson1D(MB, &lab, &la, "MB.dat");
     richardson_MB(AB, RHS, SOL, MB, &lab, &la, &ku, &kl, &tol, &maxit, resvec, &nbite);
   }
+  */
 
-  /* Write solution */
+
+  /*
+  // Write solution //
   write_vec(SOL, &la, "SOL.dat");
 
-  /* Write convergence history */
+  // Write convergence history //
   write_vec(resvec, &nbite, "RESVEC.dat");
+  */
 
   free(resvec);
   free(RHS);
@@ -125,5 +176,5 @@ int main(int argc,char *argv[])
   free(X);
   free(AB);
   free(MB);
-  printf("\n\n--------- End -----------\n");
+  printf("\n\n--------- End -----------\n\n\n");
 }

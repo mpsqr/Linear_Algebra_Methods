@@ -31,8 +31,8 @@ void richardson_alpha(double *AB, double *RHS, double *X, double *alpha_rich, in
   double norm_B = cblas_dnrm2(*la, RHS, 1); // L2 norm
   double inv_norm = 1 / norm_B;
 
-  for ((*nbite) = 0; (*nbite) < (*maxit); (*nbite++)) {
-
+  for ((*nbite) = 0; (*nbite) < (*maxit); (*nbite)++) {
+    
     for (int i = 0; i < (*la); i++) {
       rk[i] = RHS[i];
     }
@@ -44,8 +44,9 @@ void richardson_alpha(double *AB, double *RHS, double *X, double *alpha_rich, in
     norm = cblas_dnrm2(*la, rk, 1) * inv_norm;
     resvec[(*nbite)] = norm;
 
+    cblas_daxpy(*la, *alpha_rich, rk, 1, X, 1);
 
-    if (resvec[(*nbite)] <= (*tol))
+    if (norm <= (*tol))
       break;
   }
 
