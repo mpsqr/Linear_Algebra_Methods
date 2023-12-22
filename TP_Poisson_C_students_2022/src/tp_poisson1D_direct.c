@@ -41,9 +41,9 @@ int main(int argc,char *argv[])
   set_dense_RHS_DBC_1D(RHS,&la,&T0,&T1);
   set_analytical_solution_DBC_1D(EX_SOL, X, &la, &T0, &T1);
   
-  //write_vec(RHS, &la, "RHS.dat");
-  //write_vec(EX_SOL, &la, "EX_SOL.dat");
-  //write_vec(X, &la, "X_grid.dat");
+  write_vec(RHS, &la, "RHS.dat");
+  write_vec(EX_SOL, &la, "EX_SOL.dat");
+  write_vec(X, &la, "X_grid.dat");
 
   kv=1;
   ku=1;
@@ -154,7 +154,7 @@ int main(int argc,char *argv[])
   clock_gettime(CLOCK_MONOTONIC_RAW, &end);
   time = ((double)end.tv_sec + (double)end.tv_nsec/1e9) - ((double) start.tv_sec + (double)start.tv_nsec/1e9);
 
-  //write_xy(RHS, X, &la, "SOL.dat");
+  write_xy(RHS, X, &la, "SOL.dat");
   
   printf("Time taken by DGBTRFTRIDIAG: %lfs \n", time);
   //printf("Forward error is: %e\n", forward_error(&la, EX_SOL, RHS));

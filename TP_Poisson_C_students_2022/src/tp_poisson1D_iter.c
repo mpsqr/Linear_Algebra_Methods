@@ -106,7 +106,7 @@ int main(int argc,char *argv[])
     write_vec(resvec, &nbite, "results/Convergence/richardson_alpha_convergence.dat");
 
     printf("Time taken by Richardson alpha: %lfs \n", time);
-    printf("Forward relative error: %lf\n", forward_error(&la, EX_SOL, RHS));
+    printf("Forward relative error: %lf\n", forward_error(&la, EX_SOL, SOL));
   }
 
   /* Richardson General Tridiag */
@@ -131,7 +131,7 @@ int main(int argc,char *argv[])
     write_vec(resvec, &nbite, "results/Convergence/jacobi_convergence.dat");
 
     printf("Time taken by Jacobi: %lfs \n", time);
-    printf("Forward relative error: %lf\n", forward_error(&la, EX_SOL, RHS));
+    printf("Forward relative error: %lf\n", forward_error(&la, EX_SOL, SOL));
 
 
   } else if (IMPLEM == GS) {
@@ -148,7 +148,7 @@ int main(int argc,char *argv[])
     write_vec(resvec, &nbite, "results/Convergence/gauss_seidel_convergence.dat");
 
     printf("Time taken by Gauss-Seidel: %lfs \n", time);
-    printf("Forward relative error: %lf\n", forward_error(&la, EX_SOL, RHS));
+    printf("Forward relative error: %lf\n", forward_error(&la, EX_SOL, SOL));
   }
 
 
