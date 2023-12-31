@@ -15,12 +15,16 @@ make all
 
 # Run the code
 
-#./bin/tpPoisson1D_direct
+
+for ((i = 10; i <= 100000; i *= 10));
+do
+	#./bin/tpPoisson1D_direct $i
+	./bin/tpPoisson1D_iter 0 $i
+	./bin/tpPoisson1D_iter 1 $i
+	./bin/tpPoisson1D_iter 2 $i
+done
 
 
-./bin/tpPoisson1D_iter
-./bin/tpPoisson1D_iter 1
-./bin/tpPoisson1D_iter 2
 
 # Clean
 rm $(hostname).mk

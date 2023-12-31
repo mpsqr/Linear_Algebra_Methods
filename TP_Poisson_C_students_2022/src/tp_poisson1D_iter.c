@@ -36,16 +36,17 @@ int main(int argc,char *argv[])
 
   printf("---------------Iterative Methods---------------\n\n");
 
-  if (argc == 2) {
+  if (argc == 3) {
     IMPLEM = atoi(argv[1]);
-  } else if (argc > 2) {
+    nbpoints = atoi(argv[2]);
+  } else if (argc > 3) {
     perror("Application takes at most one argument");
     exit(1);
   }
 
   /* Size of the problem */
   NRHS=1;
-  nbpoints=12;
+  //nbpoints=12;
   la=nbpoints-2;
 
   /* Dirichlet Boundary conditions */
@@ -64,9 +65,9 @@ int main(int argc,char *argv[])
   set_dense_RHS_DBC_1D(RHS,&la,&T0,&T1);
   set_analytical_solution_DBC_1D(EX_SOL, X, &la, &T0, &T1);
   
-  write_vec(RHS, &la, "RHS.dat");
-  write_vec(EX_SOL, &la, "EX_SOL.dat");
-  write_vec(X, &la, "X_grid.dat");
+  //write_vec(RHS, &la, "RHS.dat");
+  //write_vec(EX_SOL, &la, "EX_SOL.dat");
+  //write_vec(X, &la, "X_grid.dat");
 
   kv=0;
   ku=1;
@@ -77,7 +78,7 @@ int main(int argc,char *argv[])
   set_GB_operator_colMajor_poisson1D(AB, &lab, &la, &kv);
   
   /* uncomment the following to check matrix A */
-  write_GB_operator_colMajor_poisson1D(AB, &lab, &la, "AB.dat");
+  //write_GB_operator_colMajor_poisson1D(AB, &lab, &la, "AB.dat");
   
   /********************************************/
   /* Solution (Richardson with optimal alpha) */
@@ -102,8 +103,8 @@ int main(int argc,char *argv[])
     clock_gettime(CLOCK_MONOTONIC_RAW, &end);
     time = ((double)end.tv_sec + (double)end.tv_nsec/1e9) - ((double) start.tv_sec + (double)start.tv_nsec/1e9);
 
-    write_vec(SOL, &la, "results/Solutions/richardson_alpha_sol.dat");
-    write_vec(resvec, &nbite, "results/Convergence/richardson_alpha_convergence.dat");
+    //write_vec(SOL, &la, "results/Solutions/richardson_alpha_sol.dat");
+    //write_vec(resvec, &nbite, "results/Convergence/richardson_alpha_convergence.dat");
 
     printf("Time taken by Richardson alpha: %lfs \n", time);
     printf("Forward relative error: %lf\n", forward_error(&la, EX_SOL, SOL));
@@ -120,15 +121,15 @@ int main(int argc,char *argv[])
     printf("Jacobi:\n");
     extract_MB_jacobi_tridiag(AB, MB, &lab, &la, &ku, &kl, &kv);
     // Solve with general Richardson
-    write_GB_operator_colMajor_poisson1D(MB, &lab, &la, "MB.dat");
+    //write_GB_operator_colMajor_poisson1D(MB, &lab, &la, "MB.dat");
 
     clock_gettime(CLOCK_MONOTONIC_RAW, &start);
     richardson_MB(AB, RHS, SOL, MB, &lab, &la, &ku, &kl, &tol, &maxit, resvec, &nbite);
     clock_gettime(CLOCK_MONOTONIC_RAW, &end);
     time = ((double)end.tv_sec + (double)end.tv_nsec/1e9) - ((double) start.tv_sec + (double)start.tv_nsec/1e9);
 
-    write_vec(SOL, &la, "results/Solutions/jacobi_sol.dat");
-    write_vec(resvec, &nbite, "results/Convergence/jacobi_convergence.dat");
+    //write_vec(SOL, &la, "results/Solutions/jacobi_sol.dat");
+    //write_vec(resvec, &nbite, "results/Convergence/jacobi_convergence.dat");
 
     printf("Time taken by Jacobi: %lfs \n", time);
     printf("Forward relative error: %lf\n", forward_error(&la, EX_SOL, SOL));
@@ -144,8 +145,8 @@ int main(int argc,char *argv[])
     clock_gettime(CLOCK_MONOTONIC_RAW, &end);
     time = ((double)end.tv_sec + (double)end.tv_nsec/1e9) - ((double) start.tv_sec + (double)start.tv_nsec/1e9);
 
-    write_vec(SOL, &la, "results/Solutions/gauss_seidel_sol.dat");
-    write_vec(resvec, &nbite, "results/Convergence/gauss_seidel_convergence.dat");
+    //write_vec(SOL, &la, "results/Solutions/gauss_seidel_sol.dat");
+    //write_vec(resvec, &nbite, "results/Convergence/gauss_seidel_convergence.dat");
 
     printf("Time taken by Gauss-Seidel: %lfs \n", time);
     printf("Forward relative error: %lf\n", forward_error(&la, EX_SOL, SOL));
